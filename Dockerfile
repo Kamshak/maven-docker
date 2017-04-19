@@ -1,7 +1,7 @@
 FROM java:8-alpine
 
-# DOCKER
-
+############################# DOCKER #############################
+ 
 RUN apk add --no-cache \
 		ca-certificates \
 		curl \
@@ -20,7 +20,7 @@ RUN set -x \
 	&& rm docker.tgz \
 	&& docker -v
 
-# MAVEN
+############################# MAVEN #############################
 
 RUN apk add --update ca-certificates && rm -rf /var/cache/apk/* && \
   find /usr/share/ca-certificates/mozilla/ -name "*.crt" -exec keytool -import -trustcacerts \
@@ -38,4 +38,29 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
 RUN mkdir -p /usr/src/app
+
+############################# GCLOUD #############################
+
+RUN apk update && apk add wget bash python && rm -rf /var/cache/apk/*
+
+RUN wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz --no-check-certificate \
+    && tar zxvf google-cloud-sdk.tar.gz \
+    && rm google-cloud-sdk.tar.gz \
+    && ls -l \
+    && ./google-cloud-sdk/install.sh --usage-reporting=true --path-update=true
+
+# Add gcloud to the path
+ENV PATH /google-cloud-sdk/bin:$PATH
+
+# Configure gcloud for your project
+RUN yes | gcloud components update
+RUN yes | gcloud components update preview
+
+
+############################# WARM MAVEN CACHE #############################
+
 WORKDIR /usr/src/app
+
+COPY pom.xml /usr/src/app/pom.xml
+RUN mvn dependency:resolve-plugins
+RUN mvn dependency:go-offline
