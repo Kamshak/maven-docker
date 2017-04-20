@@ -41,7 +41,7 @@ RUN mkdir -p /usr/src/app
 
 ############################# GCLOUD #############################
 
-RUN apk update && apk add wget bash python && rm -rf /var/cache/apk/*
+RUN apk update && apk add wget bash python git && rm -rf /var/cache/apk/*
 
 RUN wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz --no-check-certificate \
     && tar zxvf google-cloud-sdk.tar.gz \
