@@ -64,4 +64,4 @@ WORKDIR /usr/src/app
 COPY pom.xml /usr/src/app/pom.xml
 RUN mvn dependency:resolve-plugins
 RUN mvn dependency:go-offline
-RUN mvn clean install; mvn jar:jar; mvn scm:tag; mvn docker:build; rm -rf ./*; exit 0
+RUN mvn clean install; mvn resources:resources; mvn compiler:compile; mvn surefire:test; mvn jar:jar; mvn scm:tag; mvn docker:build; rm -rf ./*; exit 0
