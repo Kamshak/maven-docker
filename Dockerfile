@@ -19,6 +19,18 @@ RUN set -x \
 	&& rmdir docker \
 	&& rm docker.tgz \
 	&& docker -v
+	
+############################# DOCKER-COMPOSE ####################
+ENV GLIBC 2.23-r3
+
+RUN apk update && apk add --no-cache openssl ca-certificates && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC/glibc-$GLIBC.apk && \
+    apk add --no-cache glibc-$GLIBC.apk && rm glibc-$GLIBC.apk && \
+    ln -s /lib/libz.so.1 /usr/glibc-compat/lib/ && \
+    ln -s /lib/libc.musl-x86_64.so.1 /usr/glibc-compat/lib
+
+ADD https://github.com/docker/compose/releases/download/1.13.0/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
 
 ############################# MAVEN #############################
 
