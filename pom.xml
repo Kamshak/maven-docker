@@ -8,7 +8,7 @@
     <version>0.0.0-${revision}</version>
 
     <scm>
-        <connection>scm:git:https://gitlab-ci-token:${env.CI_BUILD_TOKEN}@gitlab.com/travelmat.es/becky.git</connection>
+        <connection>scm:git:https://api_shit:${gitPw}@gitlab.com/travelmat.es/becky.git</connection>
         <developerConnection>scm:git:git@gitlab.com:travelmat.es/becky.git</developerConnection>
     </scm>
 
@@ -21,10 +21,12 @@
         <java.version>1.8</java.version>
         <pac4jVersion>1.9.4</pac4jVersion>
         <springSecurityPac4jVersion>2.1.2</springSecurityPac4jVersion>
+        <springVersion>4.3.7.RELEASE</springVersion>
         <dockerRegistryUrl>gcr.io/dotted-nature-164508</dockerRegistryUrl>
 
         <revision>DEVELOPMENT</revision>
         <extraTag></extraTag><!-- an extra docker tag for deploy -->
+        <gitPw></gitPw>
     </properties>
 
     <repositories>
@@ -47,6 +49,11 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
@@ -56,6 +63,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${springVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.social</groupId>
@@ -113,7 +125,58 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>3.2.1</version>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.23</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.4.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb.flyway-test-extensions</groupId>
+            <artifactId>flyway-dbunit-test</artifactId>
+            <version>4.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.springtestdbunit</groupId>
+            <artifactId>spring-test-dbunit</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>2.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 
@@ -169,20 +232,19 @@
                     <tag>${project.version}</tag>
                     <connectionType>connection</connectionType>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>tag</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>tag</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.5</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -199,16 +261,12 @@
                     <imageTags>
                         <imageTag>${project.version}</imageTag>
                         <imageTag>${git.commit.id.describe-short}</imageTag>
-                        <imageTag>${git.branch}</imageTag>
                         <imageTag>${extraTag}</imageTag>
                     </imageTags>
                     <entryPoint>[ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /${project.build.finalName}.jar" ]</entryPoint>
                     <env>
-                        <JAVA_OPTS></JAVA_OPTS>
+                        <JAVA_OPTS>-showversion</JAVA_OPTS>
                     </env>
-                    <exposes>
-                        <expose>8080</expose>
-                    </exposes>
                     <!-- copy the service's jar file from target into the root directory of the image -->
                     <resources>
                         <resource>
@@ -218,31 +276,13 @@
                         </resource>
                     </resources>
                 </configuration>
-
-                <executions>
-                    <execution>
-                        <id>build-image</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>tag-image</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>tag</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>push-image</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+        </profile>
+    </profiles>
 </project>
