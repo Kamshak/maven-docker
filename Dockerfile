@@ -31,6 +31,7 @@ RUN apk update && apk add --no-cache openssl ca-certificates && \
     ln -s /lib/libc.musl-x86_64.so.1 /usr/glibc-compat/lib
 
 ADD https://github.com/docker/compose/releases/download/1.13.0/docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose
 
 ############################# MAVEN #############################
 
