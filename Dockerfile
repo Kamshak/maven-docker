@@ -68,7 +68,7 @@ ENV PATH /google-cloud-sdk/bin:$PATH
 # Configure gcloud for your project
 RUN yes | gcloud components update
 RUN yes | gcloud components update preview
-
+RUN yes | gcloud components install beta
 
 ############################# WARM MAVEN CACHE #############################
 
