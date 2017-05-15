@@ -137,13 +137,6 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.23</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.4.0</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.flywaydb.flyway-test-extensions</groupId>
             <artifactId>flyway-dbunit-test</artifactId>
@@ -174,8 +167,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elasticemail.app</groupId>
+            <artifactId>webapiclient</artifactId>
             <version>1.1</version>
         </dependency>
     </dependencies>
